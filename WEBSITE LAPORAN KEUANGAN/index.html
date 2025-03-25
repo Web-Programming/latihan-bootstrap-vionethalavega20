@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Keuangan Harian</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container py-4">
+
+    <h2 class="text-center text-primary">Laporan Keuangan Harian</h2>
+    <p class="text-center text-muted">Kelola Keuangan Anda dengan Lebih Mudah</p>
+
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="bg-light border p-3 rounded">
+                <h5>Pemasukan: Rp <span id="totalIncome">0</span></h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border p-3 rounded">
+                <h5>Pengeluaran: Rp <span id="totalExpense">0</span></h5>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bg-light border p-3 rounded">
+                <h5>Saldo Akhir: Rp <span id="endBalance">0</span></h5>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="text-center">Tambah Transaksi</h4>
+    <div class="card p-4">
+        <div class="mb-3">
+            <label for="date" class="form-label">Tanggal:</label>
+            <input type="date" id="date" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Keterangan:</label>
+            <input type="text" id="description" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="transactionType" class="form-label">Tipe Transaksi:</label>
+            <select id="transactionType" class="form-select">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Jumlah (Rp):</label>
+            <input type="number" id="amount" class="form-control">
+        </div>
+        <div class="row mt-3 gap-1">
+            <button class="btn btn-success p-3 col" onclick="addTransaction()">Tambah Transaksi</button>
+            <button class="btn btn-danger p-3 col" onclick="clearAllData()">Hapus Semua Data</button>
+            <button class="btn btn-primary p-3 col">Simpan PDF</button>
+            <button class="btn btn-warning p-3 col" onclick="removeLastRow()">Hapus Baris Terakhir</button>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Data Keuangan</h4>
+    <table class="table table-bordered mt-2">
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Keterangan</th>
+                <th>Tipe</th>
+                <th>Jumlah</th>
+            </tr>
+        </thead>
+        <tbody id="financialData"></tbody>
+    </table>
+
+    <script>
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        function addTransaction() {
+            let date = document.getElementById("date").value;
+            let description = document.getElementById("description").value;
+            let type = document.getElementById("transactionType").value;
+            let amount = parseFloat(document.getElementById("amount").value);
+
+            if (date === "" || description === "" || amount === "" || isNaN(amount) || amount <= 0) {
+                alert("Mohon isi semua data dengan benar.");
+                return;
+            }
+
+            let table = document.getElementById("financialData");
+            let row = table.insertRow();
+            row.insertCell(0).innerText = date;
+            row.insertCell(1).innerText = description;
+            row.insertCell(2).innerText = type.charAt(0).toUpperCase() + type.slice(1);
+            row.insertCell(3).innerText = "Rp " + amount.toLocaleString();
+
+            if (type === "income") {
+                totalIncome += amount;
+            } else {
+                totalExpense += amount;
+            }
+
+            updateBalance();
+        }
+
+        function updateBalance() {
+            let balance = totalIncome - totalExpense;
+            document.getElementById("totalIncome").innerText = totalIncome.toLocaleString();
+            document.getElementById("totalExpense").innerText = totalExpense.toLocaleString();
+            document.getElementById("endBalance").innerText = balance.toLocaleString();
+        }
+
+        function clearAllData() {
+            document.getElementById("financialData").innerHTML = "";
+            totalIncome = 0;
+            totalExpense = 0;
+            updateBalance();
+        }
+
+        function removeLastRow() {
+            let table = document.getElementById("financialData");
+            if (table.rows.length > 0) {
+                let lastRow = table.rows[table.rows.length - 1];
+                let type = lastRow.cells[2].innerText.toLowerCase();
+                let amount = parseFloat(lastRow.cells[3].innerText.replace("Rp ", "").replace(/,/g, ""));
+
+                if (type === "income") {
+                    totalIncome -= amount;
+                } else {
+                    totalExpense -= amount;
+                }
+
+                table.deleteRow(table.rows.length - 1);
+                updateBalance();
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
